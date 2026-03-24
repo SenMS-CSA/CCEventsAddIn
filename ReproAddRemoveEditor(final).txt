@@ -1,0 +1,139 @@
+        public void ReproAddRemoveEditor()
+        
+        {
+            Word.Document doc = this.Application.ActiveDocument;
+            Word.Range range = this.Application.Selection.Range;
+
+            if (doc.ProtectionType != Word.WdProtectionType.wdNoProtection)
+            {
+                doc.Unprotect(Password: "test");
+            }
+
+            try
+            {
+                // Step 1: Create Master Control
+                range.Text = " ";
+                Word.ContentControl masterControl = doc.ContentControls.Add(
+                    Word.WdContentControlType.wdContentControlRichText, range);
+                masterControl.Title = "Master Control";
+                masterControl.Tag= "boxtype"; //charts##3294615616
+                masterControl.Appearance = Word.WdContentControlAppearance.wdContentControlBoundingBox;
+
+                // Step 2: Add text and enter
+                Word.Range masterRange = masterControl.Range;
+                // masterRange.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+
+                //masterRange.Text=
+                masterRange.Select();
+                // Type =rand() and press Enter to execute it
+                this.Application.Selection.TypeText("=rand()");  // 2 paragraphs, 3 sentences each
+                this.Application.Activate();
+                System.Windows.Forms.Application.DoEvents();
+
+                System.Windows.Forms.SendKeys.Send("{ENTER}");
+                System.Windows.Forms.Application.DoEvents();
+
+                //Select the second paragraph and insert a table
+
+                Word.Paragraph secondParagraph = doc.Paragraphs[2];
+
+                // Get the range of the second paragraph
+                Word.Range paragraphRange = secondParagraph.Range;
+
+                // Collapse to the end of the paragraph
+                paragraphRange.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+
+                // Move back 1 character to be before the paragraph mark (optional)
+                 //paragraphRange.MoveEnd(Word.WdUnits.wdCharacter, -1);
+
+                // Select the position
+                paragraphRange.Select();
+
+               // return;
+
+                //masterRange.Text = "This is some random text inside the Master Control.\r\n";
+                
+                //masterRange.Text = "This is some random text inside the Master Control.\r\n";
+                Word.Range masterTextRange = doc.Range(masterControl.Range.Start, masterControl.Range.End - 1);
+                masterTextRange.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+
+                masterRange.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+                masterRange.Select();
+                
+
+                // Step 3: Create Inner Control
+                Word.Range innerRange = this.Application.Selection.Range;
+                innerRange.Text = " ";
+                Word.ContentControl innerControl = doc.ContentControls.Add(
+                    Word.WdContentControlType.wdContentControlRichText, innerRange);
+                innerControl.Title = "Inner Control";
+                innerControl.Tag = "Innter"; //charts##3294615616
+                innerControl.Appearance = Word.WdContentControlAppearance.wdContentControlBoundingBox;
+                
+                // Step 4: Add text and enter
+                Word.Range innerContentRange = innerControl.Range;
+               // innerContentRange = doc.Range(masterControl.Range.Start, masterControl.Range.End - 1);
+
+                //innerContentRange.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+                //innerContentRange.Editors.Item(1).Range.Text = "This is some random text inside the Inner Control.\r\n";
+                
+                innerContentRange.Text = "This is some random text inside the Inner Control.\r\n";
+                Word.Range innerEditableRange = doc.Range(innerControl.Range.Start, innerControl.Range.End - 1);
+                innerEditableRange.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+
+                innerContentRange.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+                //innerContentRange.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+                innerContentRange.Select();
+                
+                // Step 5: Add table
+                Word.Range tableRange = this.Application.Selection.Range;
+                Word.Table table = doc.Tables.Add(tableRange, 4, 2);
+                table.Borders.Enable = 1;
+
+                // STEP 6: SET TEXT FIRST (before adding editors)
+                // Row 1
+                table.Cell(1, 1).Range.Text = "Figure 1. Test image 1\a";
+                table.Cell(1, 2).Range.Text = "Figure 2. Test image 2\a";
+
+                // Row 2
+                table.Cell(2, 1).Range.Text = "[Image Placeholder 1]\a";
+                table.Cell(2, 2).Range.Text = "[Image Placeholder 2]\a";
+
+                // Row 3
+                table.Cell(3, 1).Range.Text = "© 2025 XYZ Inc.\a";
+                table.Cell(3, 2).Range.Text = "© 2025 XYZ Inc.\a";
+
+                // Row 4
+                table.Cell(4, 1).Range.Text = "Source: XYZ Research\a";
+                table.Cell(4, 2).Range.Text = "Source: XYZ Research\a";
+
+                // STEP 7: NOW add editors AFTER text is set
+                for (int row = 1; row <= 4; row++)
+                {
+                    for (int col = 1; col <= 2; col++)
+                    {
+                        Word.Range cellRange = table.Cell(row, col).Range;
+                        cellRange.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+                    }
+                }
+
+                // STEP 8: Remove editors from rows 3 and 4
+                for (int row = 3; row <= 4; row++)
+                {
+                    for (int col = 1; col <= 2; col++)
+                    {
+                        Word.Range cellRange = table.Cell(row, col).Range;
+                        while (cellRange.Editors.Count > 0)
+                        {
+                            cellRange.Editors.Item(1).Delete();
+                        }
+                    }
+                }
+
+                TraceLog("ReproAddRemoveEditor completed successfully");
+            }
+            finally
+            {
+               // doc.Protect(Word.WdProtectionType.wdAllowOnlyReading, Password: "test");
+            }
+}

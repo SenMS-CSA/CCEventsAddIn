@@ -1,0 +1,67 @@
+// RESTORE POINT - ThisAddIn.cs
+// Save this version before applying event handler changes
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
+using Word = Microsoft.Office.Interop.Word;
+using Office = Microsoft.Office.Core;
+using Microsoft.Office.Tools.Word;
+using Microsoft.Office.Tools.Ribbon;
+
+namespace WordAddIn1
+{
+    public partial class ThisAddIn
+    {
+        private void ThisAddIn_Startup(object sender, System.EventArgs e)
+        {
+            // Example: Call this method to add content control with rich text
+            // AddContentControlWithRichText();
+        }
+
+        private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
+        {
+        }
+
+        public void AddContentControlWithRichText()
+        {
+            // ... existing implementation unchanged ...
+        }
+
+        private void CreateFigureBundle(Word.Document doc, Word.Cell cell, string title, string figureTag, string imageTag, string footerTag)
+        {
+            // ... existing implementation unchanged ...
+        }
+
+        public void AddEditableRegionWithProtection()
+        {
+            // ... existing implementation unchanged ...
+        }
+
+        public void DeleteEditorsFromMasterControl()
+        {
+            // ... existing implementation unchanged ...
+        }
+
+        public void DeleteControlsFromMasterControl()
+        {
+            // ... existing implementation unchanged ...
+        }
+
+        private Microsoft.Office.Tools.Ribbon.RibbonButton btnDeleteEditors;
+        private void btnDeleteEditors_Click(object sender, RibbonControlEventArgs e)
+        {
+            Globals.ThisAddIn.DeleteEditorsFromMasterControl();
+        }
+
+        #region VSTO generated code
+        private void InternalStartup()
+        {
+            this.Startup += new System.EventHandler(ThisAddIn_Startup);
+            this.Shutdown += new System.EventHandler(ThisAddIn_Shutdown);
+        }
+        #endregion
+    }
+}

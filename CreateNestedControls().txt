@@ -1,0 +1,184 @@
+public void CreateNestedControls()
+{
+    Word.Document doc = this.Application.ActiveDocument;
+    Word.Range range = this.Application.Selection.Range;
+
+    // Store protection state and unprotect if needed
+    Word.WdProtectionType originalProtection = doc.ProtectionType;
+    if (originalProtection != Word.WdProtectionType.wdNoProtection)
+    {
+        doc.Unprotect(Password: "test");
+    }
+
+    try
+    {
+        // Step 1: Create the Master Control (outermost content control)
+        // First, insert a placeholder for the master control range
+        range.Text = "";
+        Word.Range masterRange = range;
+
+        // Step 2: Use =rand() to generate random text
+        masterRange.InsertAfter("=rand(2,3)");
+        masterRange.Fields.Add(masterRange, Word.WdFieldType.wdFieldEmpty, "=rand(2,3)", false);
+        
+        // Alternative: Execute the =rand() function directly
+        Word.Range randRange = doc.Range(range.Start, range.Start);
+        randRange.Text = "=rand(2,3)\r\n";
+        // Select the =rand() text and press F9 or use TypeText to execute it
+        randRange.Select();
+        this.Application.Selection.Range.Calculate();
+        
+        // Simpler approach: Just insert the text and let Word expand it
+        range.Text = "";
+        range.InsertAfter("Sample paragraph text before the nested control. This text is inside the Master Control.\r\n\r\n");
+        
+        // Get the end position for inserting the table
+        Word.Range tableInsertRange = doc.Range(range.End - 1, range.End - 1);
+        tableInsertRange.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+        
+        // Step 4: Add a table with 4 rows and 2 columns
+        Word.Table table = doc.Tables.Add(tableInsertRange, 4, 2);
+        table.Borders.Enable = 1;
+        table.PreferredWidthType = Word.WdPreferredWidthType.wdPreferredWidthPercent;
+        table.PreferredWidth = 100;
+
+        // Set column widths to be equal
+        table.Columns[1].PreferredWidthType = Word.WdPreferredWidthType.wdPreferredWidthPercent;
+        table.Columns[1].PreferredWidth = 50;
+        table.Columns[2].PreferredWidthType = Word.WdPreferredWidthType.wdPreferredWidthPercent;
+        table.Columns[2].PreferredWidth = 50;
+
+                // Step 5 & 6: Add content to cells and range editors
+                // Row 1 - Figure titles
+         //Start with an alternative approach to demonstrate using Cell.Range and Editors on a cell range
+            Word.Cell cell = table.Cell(1, 1);
+            Word.Range cellRange1 = cell.Range;
+            cellRange1.MoveEnd(Word.WdUnits.wdCharacter, -1);
+            cellRange1.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+            cellRange1.Text = "Figure 1. Test image 1";
+            Word.Editor editor = cellRange1.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+            //Word.Range editorRange = editor.Range;
+
+         // End of alternative approach
+
+        //Word.Range cell11Range = table.Cell(1, 1).Range;
+        //cell11Range.MoveEnd(Word.WdUnits.wdCharacter, -1);
+        //cell11Range.Text = "Figure 1. Test image 1";
+        //cell11Range.Font.Bold = 1;
+        //cell11Range.Font.Size = 11;
+        //cell11Range.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+
+        Word.Range cell12Range = table.Cell(1, 2).Range;
+        cell12Range.MoveEnd(Word.WdUnits.wdCharacter, -1);
+        cell12Range.Text = "Figure 2. Test image 2";
+        cell12Range.Font.Bold = 1;
+        cell12Range.Font.Size = 11;
+        cell12Range.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+
+        // Row 2 - Image placeholders with range editors
+        Word.Range cell21Range = table.Cell(2, 1).Range;
+        cell21Range.MoveEnd(Word.WdUnits.wdCharacter, -1);
+        cell21Range.Text = "[Image Placeholder 1]";
+        cell21Range.Font.Bold = 0;
+        cell21Range.Font.Size = 10;
+        cell21Range.Font.Color = Word.WdColor.wdColorGray50;
+        cell21Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+        cell21Range.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray25;
+        cell21Range.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+
+        Word.Range cell22Range = table.Cell(2, 2).Range;
+        cell22Range.MoveEnd(Word.WdUnits.wdCharacter, -1);
+        cell22Range.Text = "[Image Placeholder 2]";
+        cell22Range.Font.Bold = 0;
+        cell22Range.Font.Size = 10;
+        cell22Range.Font.Color = Word.WdColor.wdColorGray50;
+        cell22Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+        cell22Range.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray25;
+        cell22Range.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+
+        // Step 7: Row 3 - Copyright text with range editors (will be removed later)
+        Word.Range cell31Range = table.Cell(3, 1).Range;
+        cell31Range.MoveEnd(Word.WdUnits.wdCharacter, -1);
+        cell31Range.Text = "© 2025 XYZ Inc. No redistribution without group's written permission.";
+        cell31Range.Font.Bold = 0;
+        cell31Range.Font.Size = 8;
+        cell31Range.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+
+        Word.Range cell32Range = table.Cell(3, 2).Range;
+        cell32Range.MoveEnd(Word.WdUnits.wdCharacter, -1);
+        cell32Range.Text = "© 2025 XYZ Inc. No redistribution without group's written permission.";
+        cell32Range.Font.Bold = 0;
+        cell32Range.Font.Size = 8;
+        cell32Range.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+
+        // Step 8: Row 4 - Source text with range editors (will be removed later)
+        Word.Range cell41Range = table.Cell(4, 1).Range;
+        cell41Range.MoveEnd(Word.WdUnits.wdCharacter, -1);
+        cell41Range.Text = "Source: XYZ Research";
+        cell41Range.Font.Bold = 0;
+        cell41Range.Font.Size = 8;
+        cell41Range.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+
+        Word.Range cell42Range = table.Cell(4, 2).Range;
+        cell42Range.MoveEnd(Word.WdUnits.wdCharacter, -1);
+        cell42Range.Text = "Source: XYZ Research";
+        cell42Range.Font.Bold = 0;
+        cell42Range.Font.Size = 8;
+        cell42Range.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+
+        // Step 9: Remove range editors from the last two rows (rows 3 and 4)
+        for (int row = 3; row <= 4; row++)
+        {
+            for (int col = 1; col <= 2; col++)
+            {
+                Word.Range cellRange = table.Cell(row, col).Range;
+                cellRange.MoveEnd(Word.WdUnits.wdCharacter, -1);
+                // Delete the editor using Editors.Item(1).Delete()
+                if (cellRange.Editors.Count > 0)
+                {
+                    cellRange.Editors.Item(1).Delete();
+                }
+            }
+        }
+
+        // Step 3: Create inner content control wrapping the table
+        Word.Range tableFullRange = table.Range;
+        Word.ContentControl innerControl = doc.ContentControls.Add(
+            Word.WdContentControlType.wdContentControlRichText,
+            tableFullRange);
+        innerControl.Title = "Figure Layout Control";
+        innerControl.Tag = "FigureLayout";
+        innerControl.Appearance = Word.WdContentControlAppearance.wdContentControlBoundingBox;
+        innerControl.Color = Word.WdColor.wdColorBlue;
+
+        // Step 1: Create the Master Control wrapping everything
+        // Get the full range including the random text and the inner control
+        int masterStart = range.Start;
+        int masterEnd = innerControl.Range.End;
+        Word.Range fullMasterRange = doc.Range(masterStart, masterEnd);
+        // Expand to include inner control boundaries
+        fullMasterRange.MoveEnd(Word.WdUnits.wdCharacter, 1);
+
+        Word.ContentControl masterControl = doc.ContentControls.Add(
+            Word.WdContentControlType.wdContentControlRichText,
+            fullMasterRange);
+                // After creating masterControl (line 926), add:
+        masterControl.Range.Editors.Add(Word.WdEditorType.wdEditorEveryone);
+        masterControl.Title = "Master Control";
+        masterControl.Tag = "BodyText";
+        masterControl.Appearance = Word.WdContentControlAppearance.wdContentControlBoundingBox;
+        masterControl.Color = Word.WdColor.wdColorRed;
+
+        // Move cursor after the control
+        Word.Range afterRange = masterControl.Range;
+        afterRange.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+        afterRange.Select();
+
+        TraceLog("CreateNestedControls completed successfully");
+    }
+    finally
+    {
+        // Protect the document with AllowOnlyReading to enforce editable regions
+        doc.Protect(Word.WdProtectionType.wdAllowOnlyReading, Password: "test");
+    }
+}

@@ -1,0 +1,70 @@
+private void CreateFigureBundle(Word.Document doc, Word.Cell cell, string title, string figureTag, string imageTag, string footerTag)
+{
+    // Get the cell range
+    Word.Range cellRange = cell.Range;
+
+    // Create the figure content control that wraps everything for this figure
+    Word.ContentControl figureControl = doc.ContentControls.Add(
+        Word.WdContentControlType.wdContentControlRichText,
+        cellRange);
+    figureControl.Title = title;
+    figureControl.Tag = figureTag;
+
+    // Get the range inside the figure control
+    Word.Range figureRange = figureControl.Range;
+
+    // Add header text
+    figureRange.Text = title + "\n";
+    figureRange.Font.Bold = 1;
+    figureRange.Font.Size = 11;
+    figureRange.Font.Color = Word.WdColor.wdColorBlack;
+    figureRange.ParagraphFormat.SpaceAfter = 6;
+
+    // Move to end to add image placeholder
+    Word.Range imageRange = figureControl.Range;
+    imageRange.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+    imageRange.InsertParagraph();
+    imageRange.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+    imageRange.Text = "[Image or content placeholder]";
+    imageRange.Font.Bold = 0;
+    imageRange.Font.Size = 10;
+    imageRange.Font.Color = Word.WdColor.wdColorGray50;
+    imageRange.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+    imageRange.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray25;
+
+    // Create image content control
+    Word.ContentControl imageControl = doc.ContentControls.Add(
+        Word.WdContentControlType.wdContentControlRichText,
+        imageRange);
+    imageControl.Title = "Image Placeholder";
+    imageControl.Tag = imageTag;
+
+    // Set minimum height for image area by adding line breaks
+    Word.Range imageInnerRange = imageControl.Range;
+    imageInnerRange.Text = "\n\n\n\n[Image or content placeholder]\n\n\n\n";
+    imageInnerRange.Font.Bold = 0;
+    imageInnerRange.Font.Size = 10;
+    imageInnerRange.Font.Color = Word.WdColor.wdColorGray50;
+    imageInnerRange.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+    imageInnerRange.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray25;
+
+    // Add footer text after the image
+    Word.Range footerRange = figureControl.Range;
+    footerRange.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+    footerRange.InsertParagraph();
+    footerRange.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+    footerRange.Text = "© 2025 XYZ Inc. No redistribution without group's written permission.\nSource: XYZ Research";
+    footerRange.Font.Bold = 0;
+    footerRange.Font.Size = 8;
+    footerRange.Font.Color = Word.WdColor.wdColorBlack;
+    footerRange.ParagraphFormat.SpaceAfter = 0;
+    footerRange.Shading.BackgroundPatternColor = Word.WdColor.wdColorWhite;
+
+    // Make footer text non-editable by adding it to a locked content control
+    Word.ContentControl footerControl = doc.ContentControls.Add(
+        Word.WdContentControlType.wdContentControlRichText,
+        footerRange);
+    footerControl.Title = "Footer (Read Only)";
+    footerControl.Tag = footerTag;
+    footerControl.LockContents = true; // Lock the contents to prevent editing
+}

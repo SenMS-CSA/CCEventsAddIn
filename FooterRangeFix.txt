@@ -1,0 +1,22 @@
+Word.Range footerRange = figureControl.Range;
+footerRange.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+footerRange.InsertParagraph();
+footerRange.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+footerRange.Text = "© 2025 XYZ Inc. No redistribution without group's written permission.\nSource: XYZ Research";
+footerRange.Font.Bold = 0;
+footerRange.Font.Size = 8;
+footerRange.Font.Color = Word.WdColor.wdColorBlack;
+footerRange.ParagraphFormat.SpaceAfter = 0;
+footerRange.Shading.BackgroundPatternColor = Word.WdColor.wdColorWhite;
+
+
+
+Fixed code
+
+// Add footer text after the image - corrected approach
+Word.Range footerRange = figureControl.Range;
+footerRange.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+footerRange.MoveEnd(Word.WdUnits.wdCharacter, -1); // Move back before the cell marker
+footerRange.InsertAfter("\r"); // Insert paragraph mark using InsertAfter instead
+footerRange.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+footerRange.Text = "© 2025 XYZ Inc. No redistribution without group's written permission.\nSource: XYZ Research";
